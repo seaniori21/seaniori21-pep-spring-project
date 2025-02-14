@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.websocket.server.PathParam;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -111,6 +113,13 @@ public class SocialMediaController {
         }
         
     }
+
+    @GetMapping("/accounts/{accountId}/messages")
+    public ResponseEntity<List<Message>> getAllMessagesByUserId(@PathVariable Integer accountId){
+        List<Message> messages = messageService.getAllMessagesByUserId(accountId);
+        return ResponseEntity.status(200).body(messages);
+    }
+
 
 
 

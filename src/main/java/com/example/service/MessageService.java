@@ -115,4 +115,11 @@ public class MessageService {
     public List<Message> getAllMessages(){
         return messageRepository.findAll();
     }
+
+    /**
+     * @return all Message entities by given userId.
+     */
+    public List<Message> getAllMessagesByUserId(Integer postedBy){
+        return messageRepository.findByPostedBy(postedBy);
+    }
 }
