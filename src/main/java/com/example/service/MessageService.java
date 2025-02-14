@@ -38,7 +38,7 @@ public class MessageService {
         }
         Optional<Account> account = accountRepository.findById(newMessage.getPostedBy());
         if (account.isEmpty()) {
-            throw new ResourceNotFoundException("Posted By UserID cannot be found");
+            throw new ResourceNotFoundException("posted By UserID cannot be found");
         }
         return messageRepository.save(newMessage); 
     }
@@ -61,13 +61,52 @@ public class MessageService {
     // }
 
     /**
-     * Persist a new Message.
-     * @param Message a transient Message entity.
-     * @return a persisted Message entity.
+     * Get a message by its ID
+     * @param messageId id of message
+     * @return the message
      */
-    public Message findMessage(Message Message){
-        //Optional<Message> existingMessage = MessageRepository.findByUsername(Message.getUsername());
-        return messageRepository.save(Message);
+    public Optional<Message> getMessageById(Integer messageId) {
+        return messageRepository.findById(messageId); 
+    }
+
+    /**
+     * Delete a message by its ID
+     * @param messageId id of message
+     * @return Integer number of rows deleted
+     */
+    public Integer deleteMessageById(Integer messageId) {
+        Optional<Message> msg = messageRepository.findById(messageId);
+        if(msg.isPresent()){
+            messageRepository.deleteById(messageId);
+            return 1;
+        }else{
+            return 0; 
+        } 
+    }
+
+    /**
+     * Update a message by its ID
+     * @param messageId id of message
+     * @return Integer number of rows updated
+     */
+    public Integer updateMessageById(Integer messageId, String newMessageText) {
+        if (newMessageText == null || newMessageText.isBlank()) {
+            throw new IllegalArgumentException("message text cannot be blank");
+        }
+        if(newMessageText.length() > 255){
+            throw new IllegalArgumentException("message text cannot > 255 characters");
+        }
+
+
+        Optional<Message> msg = messageRepository.findById(messageId);
+        if(msg.isPresent()){
+            Message newMsg = msg.get();
+            newMsg.setMessageText(newMessageText);
+            messageRepository.save(newMsg);
+            return 1;
+        }else{
+            throw new ResourceNotFoundException("message not found");
+        } 
     }
 
     /**

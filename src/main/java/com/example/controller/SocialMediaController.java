@@ -13,7 +13,10 @@ import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController; 
@@ -61,6 +64,43 @@ public class SocialMediaController {
     public ResponseEntity<List<Message>> getAllMessages(){
         List<Message> messages = messageService.getAllMessages();
         return ResponseEntity.status(200).body(messages);
+    }
+
+    @GetMapping("messages/{messageId}")
+    public ResponseEntity<Message> getMessageById(@PathVariable Integer messageId){
+        Optional<Message> message = messageService.getMessageById(messageId);
+        if(message.isPresent()){
+            return ResponseEntity.status(200).body(message.get());
+        }else{
+            return ResponseEntity.status(200).build();
+        }
+    }
+
+    @DeleteMapping("messages/{messageId}")
+    public ResponseEntity<Integer> deleteMessageById(@PathVariable Integer messageId){
+        int rowsDeleted = messageService.deleteMessageById(messageId);
+        if(rowsDeleted == 1){
+            return ResponseEntity.status(200).body(rowsDeleted);
+        }else{
+            return ResponseEntity.status(200).build();
+        }
+        
+    }
+    @PatchMapping("/messages/{messageId}")
+    public ResponseEntity<?> updateMessageById(@PathVariable Integer messageId, @RequestBody String newMessageText) {
+        try{
+            int rowsUpdated = messageService.updateMessageById(messageId, newMessageText);
+
+            if (rowsUpdated == 1) {
+                return ResponseEntity.status(200).body(rowsUpdated);
+            }
+            return ResponseEntity.status(400).body("idk what happened");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+        
     }
 
 
