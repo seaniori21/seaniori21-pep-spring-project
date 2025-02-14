@@ -3,6 +3,7 @@ package com.example.controller;
 import com.example.entity.Account;
 import com.example.entity.Message;
 import com.example.exception.ResourceNotFoundException;
+import com.example.repository.MessageRepository;
 import com.example.exception.IllegalArgumentException;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
@@ -54,6 +55,12 @@ public class SocialMediaController {
         catch (ResourceNotFoundException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/messages")
+    public ResponseEntity<List<Message>> getAllMessages(){
+        List<Message> messages = messageService.getAllMessages();
+        return ResponseEntity.status(200).body(messages);
     }
 
 
