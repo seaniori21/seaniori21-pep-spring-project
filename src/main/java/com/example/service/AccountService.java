@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.entity.Account;
 import com.example.entity.Message;
+import com.example.exception.IllegalArgumentException;
 import com.example.repository.AccountRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,24 +21,41 @@ public class AccountService {
     }
 
     /**
-     * Persist a new Account.
+     * Register a new Account.
      * @param Account a transient Account entity.
-     * @return a persisted Account entity.
+     * @return a registered Account entity.
      */
-    public Account registerAccount(Account account) throws IllegalArgumentException{
-        if (account.getUsername() == null || account.getUsername().isBlank()) {
+    public Account registerAccount(Account newAccount) throws IllegalArgumentException{
+        if (newAccount.getUsername() == null || newAccount.getUsername().isBlank()) {
             throw new IllegalArgumentException("Username cannot be blank.");
         }
 
-        if (account.getPassword() == null || account.getPassword().length() < 4) {
+        if (newAccount.getPassword() == null || newAccount.getPassword().length() < 4) {
             throw new IllegalArgumentException("Password must be at least 4 characters long.");
         }
 
-        Optional<Account> existingAccount = accountRepository.findByUsername(account.getUsername());
+        Optional<Account> existingAccount = accountRepository.findByUsername(newAccount.getUsername());
         if (existingAccount.isPresent()) {
             throw new IllegalArgumentException("Username already exists.");
         }
-        return accountRepository.save(account);
+        return accountRepository.save(newAccount);
+    }
+
+    /**
+     * Login a new Account.
+     * @param String username
+     * @param String password
+     * @return a registered Account entity.
+     */
+    public Optional<Account> loginAccount(String username, String password) {
+        Optional<Account> accountOptional = accountRepository.findByUsername(username);
+        if (accountOptional.isPresent()) {
+            Account account = accountOptional.get();
+            if (account.getPassword().equals(password)) {
+                return Optional.of(account);  // Successful login
+            }
+        }
+        return Optional.empty();  // Login failed
     }
 
     /**

@@ -2,8 +2,10 @@ package com.example.controller;
 
 import com.example.entity.Account;
 import com.example.service.AccountService;
+import com.example.exception.IllegalArgumentException;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -52,6 +54,21 @@ public class SocialMediaController {
                 return ResponseEntity.status(409).body(e.getMessage());
             }
             return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    // Login endpoint
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody Account loginRequest) {
+        Optional<Account> accountOptional = accountService.loginAccount(loginRequest.getUsername(), loginRequest.getPassword());
+
+        if (accountOptional.isPresent()) {
+            // Successful login
+            Account account = accountOptional.get();
+            return ResponseEntity.ok(account);  // 200 OK
+        } else {
+            // Failed login
+            return ResponseEntity.status(401).body("Unauthorized: Invalid username or password");
         }
     }
 
