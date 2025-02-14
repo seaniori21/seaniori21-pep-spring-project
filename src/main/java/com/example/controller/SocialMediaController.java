@@ -9,6 +9,7 @@ import com.example.service.AccountService;
 import com.example.service.MessageService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
@@ -67,37 +68,45 @@ public class SocialMediaController {
     }
 
     @GetMapping("messages/{messageId}")
-    public ResponseEntity<Message> getMessageById(@PathVariable Integer messageId){
-        Optional<Message> message = messageService.getMessageById(messageId);
-        if(message.isPresent()){
-            return ResponseEntity.status(200).body(message.get());
-        }else{
-            return ResponseEntity.status(200).build();
+    public ResponseEntity<?> getMessageById(@PathVariable Integer messageId){
+        try{
+            Optional<Message> message = messageService.getMessageById(messageId);
+            if(message.isPresent()){
+                return ResponseEntity.status(200).body(message.get());
+            }else{
+                return ResponseEntity.status(200).build();
+            }
+        } catch(NumberFormatException e){
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
     @DeleteMapping("messages/{messageId}")
-    public ResponseEntity<Integer> deleteMessageById(@PathVariable Integer messageId){
-        int rowsDeleted = messageService.deleteMessageById(messageId);
-        if(rowsDeleted == 1){
-            return ResponseEntity.status(200).body(rowsDeleted);
-        }else{
-            return ResponseEntity.status(200).build();
+    public ResponseEntity<?> deleteMessageById(@PathVariable Integer messageId){
+        try{
+                int rowsDeleted = messageService.deleteMessageById(messageId);
+            if(rowsDeleted == 1){
+                return ResponseEntity.status(200).body(rowsDeleted);
+            }else{
+                return ResponseEntity.status(200).build();
+            }
+        } catch(NumberFormatException e){
+            return ResponseEntity.status(400).body(e.getMessage());
         }
         
     }
     @PatchMapping("/messages/{messageId}")
-    public ResponseEntity<?> updateMessageById(@PathVariable Integer messageId, @RequestBody String newMessageText) {
+    public ResponseEntity<?> updateMessageById(@PathVariable Integer messageId, @RequestBody Map<String, String> jsonMap) {
         try{
+            String newMessageText = jsonMap.get("messageText");
             int rowsUpdated = messageService.updateMessageById(messageId, newMessageText);
+            return ResponseEntity.status(200).body(rowsUpdated);
 
-            if (rowsUpdated == 1) {
-                return ResponseEntity.status(200).body(rowsUpdated);
-            }
-            return ResponseEntity.status(400).body("idk what happened");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch(NumberFormatException e){
             return ResponseEntity.status(400).body(e.getMessage());
         }
         
