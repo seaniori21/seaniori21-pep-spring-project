@@ -3,11 +3,14 @@ package com.example.controller;
 import com.example.entity.Account;
 import com.example.service.AccountService;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody; 
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController; 
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller using Spring. The endpoints you will need can be
@@ -15,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * where applicable as well as the @ResponseBody and @PathVariable annotations. You should
  * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
  */
-@Controller
+@RestController
 public class SocialMediaController {
 
     private final AccountService accountService;
@@ -31,6 +34,13 @@ public class SocialMediaController {
     @GetMapping("/test")
     public ResponseEntity<String> test(){
         return ResponseEntity.status(200).body("Hello World!");
+    }
+
+
+    @GetMapping("/accounts")
+    public ResponseEntity<List<Account>> getAllAccounts(){
+        List<Account> accounts = accountService.getAllAccounts();
+        return ResponseEntity.status(200).body(accounts);
     }
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody Account account) {
