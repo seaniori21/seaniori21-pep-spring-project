@@ -1,8 +1,11 @@
 package com.example.controller;
 
 import com.example.entity.Account;
-import com.example.service.AccountService;
+import com.example.entity.Message;
+import com.example.exception.ResourceNotFoundException;
 import com.example.exception.IllegalArgumentException;
+import com.example.service.AccountService;
+import com.example.service.MessageService;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,9 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class SocialMediaController {
 
     private final AccountService accountService;
+    private final MessageService messageService;
 
-    public SocialMediaController(AccountService accountService) {
+    public SocialMediaController(AccountService accountService, MessageService messageService) {
         this.accountService = accountService;
+        this.messageService = messageService;
     }
 
     /**
@@ -38,12 +43,28 @@ public class SocialMediaController {
         return ResponseEntity.status(200).body("Hello World!");
     }
 
+    @PostMapping("/messages")
+    public ResponseEntity<?> createMessage(@RequestBody Message msg) {
+        try {
+            Message createdMessage = messageService.createMessage(msg);
+            return ResponseEntity.ok(createdMessage);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+        catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+
+
 
     @GetMapping("/accounts")
     public ResponseEntity<List<Account>> getAllAccounts(){
         List<Account> accounts = accountService.getAllAccounts();
         return ResponseEntity.status(200).body(accounts);
     }
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody Account account) {
         try {
@@ -57,17 +78,14 @@ public class SocialMediaController {
         }
     }
 
-    // Login endpoint
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Account loginRequest) {
         Optional<Account> accountOptional = accountService.loginAccount(loginRequest.getUsername(), loginRequest.getPassword());
 
         if (accountOptional.isPresent()) {
-            // Successful login
             Account account = accountOptional.get();
             return ResponseEntity.ok(account);  // 200 OK
         } else {
-            // Failed login
             return ResponseEntity.status(401).body("Unauthorized: Invalid username or password");
         }
     }
